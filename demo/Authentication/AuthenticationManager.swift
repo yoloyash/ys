@@ -7,15 +7,25 @@
 
 import Foundation
 import FirebaseAuth
+import FirebaseCore
+import FirebaseFirestore
+
+class AuthenticationStateManager: ObservableObject {
+    @Published var isAuthenticated: Bool = false
+}
 
 struct AuthDataResultModel {
     let uid: String
     let email: String?
+    let name: String?
+    let dateOfBirth: Date?
     let photoUrl: String?
     
-    init(user: User) {
+    init(user: User, name: String?, dateOfBirth: Date?) {
         self.uid = user.uid
         self.email = user.email
+        self.name = name
+        self.dateOfBirth = dateOfBirth
         self.photoUrl = user.photoURL?.absoluteString
     }
 }
@@ -25,24 +35,54 @@ final class AuthenticationManager {
     static let shared = AuthenticationManager()
     private init() { }
     
+    private let db = Firestore.firestore()
     
-    func getAuthenticatedUser() throws -> AuthDataResultModel {
+    func getAuthenticatedUser() async throws -> AuthDataResultModel {
         guard let user = Auth.auth().currentUser else {
             throw URLError(.badServerResponse)
         }
-        return AuthDataResultModel(user: user)
+        
+        let docRef = db.collection("users").document(user.uid)
+        let document = try await docRef.getDocument()
+        let data = document.data()
+        let name = data?["name"] as? String
+        let dateOfBirth = (data?["dataOfBirth"] as? Timestamp)?.dateValue()
+        
+        return AuthDataResultModel(user: user, name:name, dateOfBirth: dateOfBirth)
     }
     
     @discardableResult
-    func createUser(email: String, password: String) async throws -> AuthDataResultModel {
+    func createUser(name:String, email: String, password: String, dateOfBirth: Date) async throws -> AuthDataResultModel {
         let authDataResult = try await Auth.auth().createUser(withEmail: email, password: password)
-        return AuthDataResultModel(user: authDataResult.user)
+        let user = authDataResult.user
+        
+        let userData: [String: Any] = [
+            "name": name,
+            "email": email,
+            "dateOfBirth": dateOfBirth
+        ]
+        
+        try await db.collection("users").document(user.uid).setData(userData)
+        
+        return AuthDataResultModel(user: user, name: name, dateOfBirth: dateOfBirth)
     }
     
     @discardableResult
     func signInUser(email: String, password: String) async throws -> AuthDataResultModel {
         let authDataResult = try await Auth.auth().signIn(withEmail: email, password: password)
-        return AuthDataResultModel(user: authDataResult.user)
+        let user = authDataResult.user
+        
+        let docRef = db.collection("users").document(user.uid)
+        let document = try await docRef.getDocument()
+        
+        if let data = document.data() {
+            let name = data["name"] as? String
+            let dateOfBirth = (data["dateOfBirth"] as? Timestamp)?.dateValue()
+            return AuthDataResultModel(user: user, name: name, dateOfBirth: dateOfBirth)
+        } else {
+            // If for some reason the additional data is not found, return with nil values for name and dateOfBirth
+            return AuthDataResultModel(user: user, name: nil, dateOfBirth: nil)
+            }
     }
     
     func resetPassword(email: String) async throws{

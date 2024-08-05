@@ -16,12 +16,13 @@ final class SettingsViewModel: ObservableObject {
     }
     
     func resetPassword() async throws {
-        let authUser = try AuthenticationManager.shared.getAuthenticatedUser()
-        
-        guard let email = authUser.email else {
-            throw URLError(.fileDoesNotExist)
-        }
+        Task{
+            let authUser = try await AuthenticationManager.shared.getAuthenticatedUser()
+            guard let email = authUser.email else {
+                throw URLError(.fileDoesNotExist)
+            }
         try await AuthenticationManager.shared.resetPassword(email: email)
+        }
     }
     
     func updateEmail() async throws {

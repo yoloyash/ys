@@ -12,24 +12,46 @@ struct AuthenticationView: View {
     @Binding var showSignInView: Bool
     
     var body: some View {
-        VStack{
-            
-            NavigationLink{
-                SignInEmailView(showSignInView: $showSignInView)
-            } label: {
-                Text("Sign In With Email")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(height: 55)
-                    .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
-                    .background(Color.blue)
-                    .cornerRadius(10)
+        
+        ZStack{
+            BackgroundView()
+            VStack{
+                Image("logo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 180)
+                    .padding(.top, 80)
+                    .padding(.bottom, 100)
+                    
+                NavigationLink{
+                    SignInView(showSignInView: $showSignInView)
+                } label: {
+                    Text("Sign In")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(height: 55)
+                        .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+                        .background(Color.blue)
+                        .cornerRadius(10)
+                }
+                
+                NavigationLink{
+                    SignUpView(showSignInView: $showSignInView)
+                } label: {
+                    Text("Sign Up")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(height: 55)
+                        .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+                        .background(Color.blue)
+                        .cornerRadius(10)
+                }
+                Spacer()
             }
-            Spacer()
+            .padding()
+            .navigationTitle("Sign In")
         }
-        .padding()
-        .navigationTitle("Sign In")
-    }
+        }
 }
 
 #Preview {
