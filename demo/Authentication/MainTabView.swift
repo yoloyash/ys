@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MainTabView: View {
     
-    @Binding var showSignInView: Bool
+    @EnvironmentObject var authState: AuthenticationState
     
     var body: some View {
         TabView {
@@ -21,7 +21,7 @@ struct MainTabView: View {
             }
             
             NavigationStack {
-                SettingsView(showSignInView: $showSignInView)
+                SettingsView()
             }
             .tabItem {
                 Label("Settings", systemImage: "gear")
@@ -31,5 +31,5 @@ struct MainTabView: View {
 }
 
 #Preview {
-    MainTabView(showSignInView: .constant(false))
+    MainTabView()
 }

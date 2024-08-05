@@ -10,18 +10,17 @@ import SwiftUI
 @MainActor
 final class SettingsViewModel: ObservableObject {
     
-    
     func signOut() throws {
         try AuthenticationManager.shared.signOut()
     }
     
     func resetPassword() async throws {
-        Task{
+        Task {
             let authUser = try await AuthenticationManager.shared.getAuthenticatedUser()
             guard let email = authUser.email else {
                 throw URLError(.fileDoesNotExist)
             }
-        try await AuthenticationManager.shared.resetPassword(email: email)
+            try await AuthenticationManager.shared.resetPassword(email: email)
         }
     }
     
@@ -39,7 +38,7 @@ final class SettingsViewModel: ObservableObject {
 struct SettingsView: View {
     
     @StateObject private var viewModel = SettingsViewModel()
-    @Binding var showSignInView: Bool
+    @EnvironmentObject var authState: AuthenticationState
     
     var body: some View {
         List {
@@ -47,7 +46,7 @@ struct SettingsView: View {
                 Task {
                     do {
                         try viewModel.signOut()
-                        showSignInView = true
+                        authState.isAuthenticated = false
                     } catch {
                         print(error)
                     }
@@ -60,7 +59,7 @@ struct SettingsView: View {
 }
 
 #Preview {
-    SettingsView(showSignInView: .constant(false))
+    SettingsView()
 }
 
 extension SettingsView {

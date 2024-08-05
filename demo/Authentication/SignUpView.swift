@@ -8,7 +8,7 @@
 import SwiftUI
 
 @MainActor
-final class SignUpViewModel: ObservableObject{
+final class SignUpViewModel: ObservableObject {
     
     @Published var name = ""
     @Published var email = ""
@@ -29,7 +29,8 @@ final class SignUpViewModel: ObservableObject{
 
 struct SignUpView: View {
     @StateObject private var viewModel = SignUpViewModel()
-    @Binding var showSignInView: Bool
+    @EnvironmentObject var authState: AuthenticationState
+    
     var body: some View {
         ZStack {
             BackgroundView()
@@ -60,12 +61,12 @@ struct SignUpView: View {
                     .background(Color.gray.opacity(0.4))
                     .cornerRadius(10)
                     .padding(.bottom, 40)
-                        
+                
                 Button {
                     Task {
                         do {
                             try await viewModel.signUp()
-                            showSignInView = false
+                            authState.isAuthenticated = true
                         } catch {
                             print(error)
                         }
@@ -81,13 +82,13 @@ struct SignUpView: View {
                 }
                 
                 Spacer()
-                }
-                .padding()
-                .navigationTitle("Sign Up")
+            }
+            .padding()
+            .navigationTitle("Sign Up")
         }
     }
 }
 
 #Preview {
-    SignUpView(showSignInView: .constant(false))
+    SignUpView()
 }

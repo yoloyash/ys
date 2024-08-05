@@ -9,40 +9,39 @@ import SwiftUI
 
 struct AuthenticationView: View {
     
-    @Binding var showSignInView: Bool
+    @EnvironmentObject var authState: AuthenticationState
     
     var body: some View {
-        
-        ZStack{
+        ZStack {
             BackgroundView()
-            VStack{
+            VStack {
                 Image("logo")
                     .resizable()
                     .scaledToFit()
                     .frame(height: 180)
                     .padding(.top, 80)
                     .padding(.bottom, 100)
-                    
-                NavigationLink{
-                    SignInView(showSignInView: $showSignInView)
+                
+                NavigationLink {
+                    SignInView()
                 } label: {
                     Text("Sign In")
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(height: 55)
-                        .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+                        .frame(maxWidth: .infinity)
                         .background(Color.blue)
                         .cornerRadius(10)
                 }
                 
-                NavigationLink{
-                    SignUpView(showSignInView: $showSignInView)
+                NavigationLink {
+                    SignUpView()
                 } label: {
                     Text("Sign Up")
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(height: 55)
-                        .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+                        .frame(maxWidth: .infinity)
                         .background(Color.blue)
                         .cornerRadius(10)
                 }
@@ -51,11 +50,11 @@ struct AuthenticationView: View {
             .padding()
             .navigationTitle("Sign In")
         }
-        }
+    }
 }
 
 #Preview {
-    NavigationStack{
-        AuthenticationView(showSignInView: .constant(false))
+    NavigationStack {
+        AuthenticationView()
     }
 }

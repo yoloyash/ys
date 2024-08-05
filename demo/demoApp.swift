@@ -11,6 +11,8 @@ import Firebase
 @main
 struct demoApp: App {
     
+    @StateObject private var authState = AuthenticationState()
+    
     init(){
         FirebaseApp.configure()
         print("Configured Firebase!")
@@ -20,6 +22,7 @@ struct demoApp: App {
         WindowGroup {
             NavigationStack{
                 RootView()
+                    .environmentObject(authState)
             }
         }
     }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 @MainActor
-final class SignInViewModel: ObservableObject{
+final class SignInViewModel: ObservableObject {
     
     @Published var email = ""
     @Published var password = ""
@@ -25,58 +25,58 @@ final class SignInViewModel: ObservableObject{
     }
 }
 
-
 struct SignInView: View {
     @StateObject private var viewModel = SignInViewModel()
-    @Binding var showSignInView: Bool
-        var body: some View {
-            ZStack {
-                BackgroundView()
-                VStack {
-                    Image("logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 180)
-                        .padding(.top, 40)
-                        .padding(.bottom, 40)
-                    
-                    TextField("Email", text: $viewModel.email)
-                        .padding()
-                        .background(Color.gray.opacity(0.4))
-                        .cornerRadius(10)
-                    SecureField("Password", text: $viewModel.password)
-                        .padding()
-                        .background(Color.gray.opacity(0.4))
-                        .cornerRadius(10)
-                        .padding(.bottom, 40)
-                    
-                    Button {
-                        Task {
-                            do {
-                                try await viewModel.signIn()
-                                showSignInView = false
-                            } catch {
-                                print(error)
-                            }
+    @EnvironmentObject var authState: AuthenticationState
+    
+    var body: some View {
+        ZStack {
+            BackgroundView()
+            VStack {
+                Image("logo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 180)
+                    .padding(.top, 40)
+                    .padding(.bottom, 40)
+                
+                TextField("Email", text: $viewModel.email)
+                    .padding()
+                    .background(Color.gray.opacity(0.4))
+                    .cornerRadius(10)
+                SecureField("Password", text: $viewModel.password)
+                    .padding()
+                    .background(Color.gray.opacity(0.4))
+                    .cornerRadius(10)
+                    .padding(.bottom, 40)
+                
+                Button {
+                    Task {
+                        do {
+                            try await viewModel.signIn()
+                            authState.isAuthenticated = true
+                        } catch {
+                            print(error)
                         }
-                    } label: {
-                        Text("Sign In")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(height: 55)
-                            .frame(maxWidth: .infinity)
-                            .background(Color.blue)
-                            .cornerRadius(10)
                     }
-                    
-                    Spacer()
+                } label: {
+                    Text("Sign In")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(height: 55)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .cornerRadius(10)
                 }
-                .padding()
-                .navigationTitle("Sign In")
+                
+                Spacer()
             }
+            .padding()
+            .navigationTitle("Sign In")
+        }
     }
 }
 
 #Preview {
-    SignInView(showSignInView: .constant(false))
+    SignInView()
 }

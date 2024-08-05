@@ -9,26 +9,28 @@ import SwiftUI
 
 struct RootView: View {
     
-    @State private var showSignInView: Bool = false
+    @EnvironmentObject var authState: AuthenticationState
+    @State private var showMainTabView = false
     
     var body: some View {
         ZStack {
-            if !showSignInView {
-                MainTabView(showSignInView: $showSignInView)
+            if authState.isAuthenticated {
+                MainTabView()
+            } else {
+                AuthenticationView()
             }
         }
         .onAppear {
             Task {
                 let authUser = try? await AuthenticationManager.shared.getAuthenticatedUser()
-                self.showSignInView = authUser == nil
+                self.authState.isAuthenticated = authUser != nil
             }
         }
-        .fullScreenCover(isPresented: $showSignInView) {
+        .fullScreenCover(isPresented: .constant(!authState.isAuthenticated)) {
             NavigationStack {
-                AuthenticationView (showSignInView: $showSignInView)
+                AuthenticationView()
             }
         }
-        
     }
 }
 
